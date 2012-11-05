@@ -26,8 +26,17 @@ if [ $COUNT -eq 1 ]; then
    LNODE=""
 else
    COUNT=`cat $KEY_FILE | grep "^$KNODE\W" | grep "\\$LNODE" | wc -l`
+
    if [ $COUNT -eq 1 ]; then
       KEY=`cat $KEY_FILE | grep "^$KNODE\W" | grep "\\$LNODE"`
+   else  # LNODE is missing!
+      COUNT=`cat $KEY_FILE | grep "^$TREE\W" | grep "\\$LNODE" | wc -l`
+
+      if [ $COUNT -eq 1 ]; then
+         KEY=`cat $KEY_FILE | grep "^$TREE\W" | grep "\\$LNODE"`
+         KNODE=$TREE
+         LNODE=""
+      fi
    fi
 fi
 
@@ -39,35 +48,53 @@ if [ "$1" == "-n" ]; then
    if [ -z "$KEY" ]; then
       KEY=`cat $KEY_FILE | head -n 1`
    else
-      RPT=1
+      CHKNEXT=0
+      COUNT=`echo "$KEY" | grep "\\$LNODE" | wc -l`
 
-      while [ $RPT -eq 1 ]; do
-         RPT=0
-         COUNT=`echo "$KEY" | grep "\\$LNODE | wc -l"`
+      if [ $COUNT -eq 0 ]; then
+         LINENUM=$(( $LINENUM + 1 ))
+         LNODE=0
+         CHKNEXT=1
+      else
+         [ -z "$LNODE" ] && LNODE=0
 
-         if [ $COUNT -eq 0 ]; then
+         LNODE=$(( $LNODE + 1 ))
+         FILENAME=$(eval echo `echo $KEY | awk "{print \\$3}"`)
+
+         if [ ! -f $FILENAME ]; then
             LINENUM=$(( $LINENUM + 1 ))
             LNODE=0
-            RPT=1
-         else
-            [ -z "$LNODE" ] && LNODE=0
-
-            LNODE=$(( $LNODE + 1 ))
-            FILENAME=$(eval echo `echo $KEY | awk "{print \\$3"`)
-
-            if [ ! -f $FILENAME ]; then
-               LINENUM=$(( $LINENUM + 1 ))
-               LNODE=0
-               RPT=1
-            fi
+            CHKNEXT=1
          fi
+      fi
 
-         # Get line from number
-         [ $RPT -eq 1 ] && KEY=`cat $KEY_FILE | head -n $LINENUM | tail -n 1`
-      done
+      if [ $CHKNEXT -eq 1 ]; then
+         RPT=1
+         while [ $RPT -eq 1 ]; do
+            RPT=0
+
+            # Get line from number
+            KEY=`cat $KEY_FILE | head -n $LINENUM | tail -n 1`
+            COUNT=`echo "$KEY" | grep "\\$LNODE" | wc -l`
+
+            if [ ! $COUNT -eq 0 ]; then
+               LNODE=$(( $LNODE + 1 ))
+               FILENAME=$(eval echo `echo $KEY | awk "{print \\$3}"`)
+
+               if [ ! -f $FILENAME ]; then
+                  LINENUM=$(( $LINENUM + 1 ))
+                  LNODE=0
+                  RPT=1
+               fi
+            fi
+         done
+      fi
+
    fi
 
    TREE=`echo $KEY | awk "{print \\$1}"`
+   COUNT=`echo "$KEY" | grep "\\$LNODE" | wc -l`
+   [ ! $COUNT -eq 0 ] && TREE="${TREE}.${LNODE}"
 fi
 
 # === SNMP GET ===
