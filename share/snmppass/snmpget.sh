@@ -13,6 +13,7 @@ fi
 LNODE=`echo $TREE | awk -F. "{print \\$NF}"`
 KNODE=`echo $TREE | awk -F. "{out=\\$1; for(i=2;i<NF;i++){out=out\".\"\\$i}; print out}"`
 
+KEYS_COUNT=`cat $KEY_FILE | wc -l`
 COUNT=`cat $KEY_FILE | grep "^$TREE\W" | grep -v "\\$LNODE"| wc -l`
 KEY=""
 
@@ -63,6 +64,8 @@ if [ "$1" == "-n" ]; then
          fi
       fi
 
+      [ $LINENUM -gt $KEYS_COUNT ] && exit 1
+
       if [ $CHKNEXT -eq 1 ]; then
          RPT=1
          while [ $RPT -eq 1 ]; do
@@ -82,6 +85,8 @@ if [ "$1" == "-n" ]; then
                   RPT=1
                fi
             fi
+
+            [ $LINENUM -gt $KEYS_COUNT ] && exit 1
          done
       fi
 
