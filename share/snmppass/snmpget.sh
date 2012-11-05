@@ -13,11 +13,6 @@ fi
 LNODE=`echo $TREE | awk -F. "{print \\$NF}"`
 KNODE=`echo $TREE | awk -F. "{out=\\$1; for(i=2;i<NF;i++){out=out\".\"\\$i}; print out}"`
 
-echo "TREE: $TREE"
-echo "LNODE: $LNODE"
-echo "KNODE: $KNODE"
-echo ""
-
 COUNT=`cat $KEY_FILE | grep "^$TREE\W" | grep -v "\\$LNODE"| wc -l`
 KEY=""
 
@@ -107,7 +102,4 @@ FILENAME=$(eval echo `echo $KEY | awk "{print \\$3}"`)
 echo "${ROOT}.${TREE}"
 echo "`echo $KEY | awk "{print \\$2}"`"
 cat "$FILENAME"
-
-echo ""
-echo $KEY
 
