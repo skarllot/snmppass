@@ -1,0 +1,17 @@
+SNMPPASS
+========
+
+SNMPPASS is a simply script that extends the Net-SNMP through pass command.
+
+
+How to report bugs
+==================
+
+Bugs should be reported in http://github.com/skarllot/snmppass/issues
+page.
+
+
+Contact
+=======
+
+Fabrício Godoy <skarllot@gmail.com>
