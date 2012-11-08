@@ -226,6 +226,7 @@ while true; do
             ;;
         --debug)
             set -x
+            shift
             ;;
         --)
             shift
